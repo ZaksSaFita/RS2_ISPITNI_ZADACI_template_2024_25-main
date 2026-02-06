@@ -1,5 +1,6 @@
 import 'package:ecommerce_mobile/model/cart_provider.dart';
 import 'package:ecommerce_mobile/providers/auth_provider.dart';
+import 'package:ecommerce_mobile/providers/discount_provider.dart';
 import 'package:ecommerce_mobile/providers/logged_product_provider.dart';
 import 'package:ecommerce_mobile/providers/product_provider.dart';
 import 'package:ecommerce_mobile/providers/product_type_provider.dart';
@@ -17,6 +18,8 @@ void main() {
     ChangeNotifierProvider<ProductTypeProvider>(
         create: (context) => ProductTypeProvider()),
     ChangeNotifierProvider<CartProvider>(create: (context) => CartProvider()),
+    ChangeNotifierProvider<DiscountProvider>(
+        create: (context) => DiscountProvider()),
   ], child: const MyLoginApp()));
 }
 
@@ -37,8 +40,10 @@ class MyLoginApp extends StatelessWidget {
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
-  final TextEditingController _usernameController = new TextEditingController();
-  final TextEditingController _passwordController = new TextEditingController();
+  final TextEditingController _usernameController =
+      new TextEditingController(text: "admin");
+  final TextEditingController _passwordController =
+      new TextEditingController(text: "Test123");
 
   @override
   Widget build(BuildContext context) {
@@ -132,8 +137,6 @@ class LoginPage extends StatelessWidget {
                   onTap: () async {
                     ProductProvider provider = new ProductProvider();
 
-                    print(
-                        "credentials: ${_usernameController.text} : ${_passwordController.text}");
                     AuthProvider.username = _usernameController.text;
                     AuthProvider.password = _passwordController.text;
 

@@ -3,7 +3,6 @@ using eCommerce.Services.Database;
 using eCommerce.Services.ProductStateMachine;
 using eCommerce.WebAPI.Filters;
 using Mapster;
-using MapsterMapper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.OpenApi.Models;
 
@@ -15,6 +14,8 @@ builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IProductTypeService, ProductTypeService>();
 builder.Services.AddTransient<IRoleService, RoleService>();
 builder.Services.AddTransient<IUnitOfMeasureService, UnitOfMeasureService>();
+builder.Services.AddTransient<IProductDiscountBrojIndeksaService, ProductDiscountBrojIndeksaService>();
+
 
 builder.Services.AddTransient<BaseProductState>();
 builder.Services.AddTransient<InitialProductState>();
@@ -30,7 +31,7 @@ builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
 
-builder.Services.AddControllers( x=> 
+builder.Services.AddControllers(x =>
     {
         x.Filters.Add<ExceptionFilter>();
     }

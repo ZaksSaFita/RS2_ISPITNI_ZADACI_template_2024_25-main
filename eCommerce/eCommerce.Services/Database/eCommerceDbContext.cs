@@ -22,6 +22,8 @@ namespace eCommerce.Services.Database
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<UnitOfMeasure> UnitsOfMeasure { get; set; }
+        public DbSet<ProductDiscountBrojIndeksa> ProductDiscountBrojIndeksas { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -179,6 +181,11 @@ namespace eCommerce.Services.Database
                 .HasIndex(ur => new { ur.UserId, ur.RoleId })
                 .IsUnique();
 
+            modelBuilder.Entity<ProductDiscountBrojIndeksa>()
+              .HasOne(ur => ur.Product)
+              .WithMany()
+              .HasForeignKey(ur => ur.ProductId)
+              .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Category>().HasData(
            new Category { Id = 1, Name = "Elektronika", Description = "Elektronski ureðaji", IsActive = true, CreatedAt = DateTime.UtcNow },
@@ -313,6 +320,13 @@ namespace eCommerce.Services.Database
                 new UserRole { Id = 2, UserId = 2, RoleId = 2, DateAssigned = DateTime.UtcNow }
             );
 
+
+            modelBuilder.Entity<ProductDiscountBrojIndeksa>().HasData(
+              new ProductDiscountBrojIndeksa { Id = 1, ProductId = 1, ValidFrom = DateTime.UtcNow, ValidTo = DateTime.UtcNow.AddDays(5), Discount = 5 },
+                new ProductDiscountBrojIndeksa { Id = 2, ProductId = 2, ValidFrom = DateTime.UtcNow, ValidTo = DateTime.UtcNow.AddDays(10), Discount = 10 },
+                  new ProductDiscountBrojIndeksa { Id = 3, ProductId = 3, ValidFrom = DateTime.UtcNow, ValidTo = DateTime.UtcNow.AddDays(15), Discount = 15 },
+                    new ProductDiscountBrojIndeksa { Id = 4, ProductId = 4, ValidFrom = DateTime.UtcNow, ValidTo = DateTime.UtcNow.AddDays(20), Discount = 20 }
+          );
         }
     }
 }
