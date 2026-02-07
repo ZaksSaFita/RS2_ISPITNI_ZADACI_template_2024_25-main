@@ -4,6 +4,7 @@ import 'package:ecommerce_mobile/providers/logged_product_provider.dart';
 import 'package:ecommerce_mobile/providers/product_provider.dart';
 import 'package:ecommerce_mobile/providers/product_type_provider.dart';
 import 'package:ecommerce_mobile/providers/unit_of_measure_provider.dart';
+import 'package:ecommerce_mobile/providers/user_provider.dart';
 import 'package:ecommerce_mobile/screens/product_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,8 +38,10 @@ class MyLoginApp extends StatelessWidget {
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
-  final TextEditingController _usernameController = new TextEditingController();
-  final TextEditingController _passwordController = new TextEditingController();
+  final TextEditingController _usernameController =
+      new TextEditingController(text: "admin");
+  final TextEditingController _passwordController =
+      new TextEditingController(text: "Test123");
 
   @override
   Widget build(BuildContext context) {
@@ -131,12 +134,13 @@ class LoginPage extends StatelessWidget {
                 child: InkWell(
                   onTap: () async {
                     ProductProvider provider = new ProductProvider();
+                    UserProvider userProvider = UserProvider();
 
-                    print(
-                        "credentials: ${_usernameController.text} : ${_passwordController.text}");
                     AuthProvider.username = _usernameController.text;
                     AuthProvider.password = _passwordController.text;
-
+                    var user = await userProvider
+                        .get(filter: {"username": _usernameController.text});
+                    AuthProvider.user = user.items?.first;
                     if (_usernameController.text == "") {}
                     try {
                       await provider.get();

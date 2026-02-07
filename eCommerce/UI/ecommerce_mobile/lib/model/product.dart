@@ -1,30 +1,40 @@
+import 'package:ecommerce_mobile/model/product_type.dart';
+import 'package:ecommerce_mobile/model/unit_of_measure.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'asset.dart';
 
 part 'product.g.dart';
+
 @JsonSerializable()
 class Product {
   final int id;
   final String name;
+  final String description;
+
   final String code;
   final String productState;
   final double? price;
   final int? unitOfMeasureId;
   final int? productTypeId;
   final List<Asset> assets;
+  final ProductType? productType;
+  final UnitOfMeasure? unitOfMeasure;
 
-  Product({
-    this.id = 0,
-    this.name = '',
-    this.code = '',
-    this.productState = 'ActiveProductState',
-    this.price = 0,
-    this.unitOfMeasureId,
-    this.productTypeId,
-    this.assets = const [],
-  });
+  Product(
+      {this.id = 0,
+      this.name = '',
+      this.code = '',
+      this.description = '',
+      this.productState = 'ActiveProductState',
+      this.price = 0,
+      this.unitOfMeasureId,
+      this.productTypeId,
+      this.assets = const [],
+      this.productType,
+      this.unitOfMeasure});
 
-  factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
+  factory Product.fromJson(Map<String, dynamic> json) =>
+      _$ProductFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProductToJson(this);
 

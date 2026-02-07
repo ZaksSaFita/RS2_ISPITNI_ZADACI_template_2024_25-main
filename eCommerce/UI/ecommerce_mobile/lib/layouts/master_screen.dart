@@ -1,4 +1,6 @@
+import 'package:ecommerce_mobile/screens/cart2_screen.dart';
 import 'package:ecommerce_mobile/screens/cart_screen.dart';
+import 'package:ecommerce_mobile/screens/favorite_list.dart';
 import 'package:ecommerce_mobile/screens/product_details_screen.dart';
 import 'package:ecommerce_mobile/screens/product_list.dart';
 import 'package:flutter/material.dart';
@@ -22,18 +24,50 @@ class _MasterScreenState extends State<MasterScreen> {
       drawer: Drawer(
         child: ListView(
           children: [
-            ListTile(title: Text('Back'), onTap: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },),
-            ListTile(title: Text('Products'), onTap: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ProductList()));
-            },),
-            ListTile(title: Text('Product Details'), onTap: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ProductDetailsScreen()));
-            },), ListTile(title: Text('Cart'), onTap: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CartScreen()));
-            },),
+            ListTile(
+              title: Text('Back'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text('Products'),
+              onTap: () {
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => ProductList()));
+              },
+            ),
+            ListTile(
+              title: Text('Product Details'),
+              onTap: () {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ProductDetailsScreen()));
+              },
+            ),
+            ListTile(
+              title: Text('Cart'),
+              onTap: () {
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => CartScreen()));
+              },
+            ),
+            ListTile(
+              title: Text('Favorite'),
+              onTap: () {
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => FavoriteList()));
+              },
+            ),
+            ListTile(
+              title: Text('cart2'),
+              onTap: () {
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => Cart2Screen()));
+              },
+            ),
           ],
         ),
       ),

@@ -22,6 +22,8 @@ namespace eCommerce.Services.Database
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<UnitOfMeasure> UnitsOfMeasure { get; set; }
+        public DbSet<FavoriteBrojIndeksa> FavoriteBrojIndeksas { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -180,6 +182,24 @@ namespace eCommerce.Services.Database
                 .IsUnique();
 
 
+
+            modelBuilder.Entity<FavoriteBrojIndeksa>()
+                .HasOne(ur => ur.User)
+                .WithMany()
+                .HasForeignKey(ur => ur.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<FavoriteBrojIndeksa>()
+              .HasOne(ur => ur.Product)
+              .WithMany()
+              .HasForeignKey(ur => ur.ProductId)
+              .OnDelete(DeleteBehavior.Cascade);
+
+            // Create a unique constraint on UserId and RoleId
+            modelBuilder.Entity<FavoriteBrojIndeksa>()
+                .HasIndex(ur => new { ur.UserId, ur.ProductId })
+                .IsUnique();
+
             modelBuilder.Entity<Category>().HasData(
            new Category { Id = 1, Name = "Elektronika", Description = "Elektronski ureðaji", IsActive = true, CreatedAt = DateTime.UtcNow },
            new Category { Id = 2, Name = "Knjige", Description = "Knjige i literatura", IsActive = true, CreatedAt = DateTime.UtcNow },
@@ -313,6 +333,14 @@ namespace eCommerce.Services.Database
                 new UserRole { Id = 2, UserId = 2, RoleId = 2, DateAssigned = DateTime.UtcNow }
             );
 
+
+            modelBuilder.Entity<FavoriteBrojIndeksa>().HasData(
+            new FavoriteBrojIndeksa { Id = 1, UserId = 2, ProductId = 1, CreatedAt = DateTime.UtcNow },
+            new FavoriteBrojIndeksa { Id = 2, UserId = 2, ProductId = 2, CreatedAt = DateTime.UtcNow.AddDays(5) },
+            new FavoriteBrojIndeksa { Id = 3, UserId = 2, ProductId = 3, CreatedAt = DateTime.UtcNow.AddDays(7) },
+            new FavoriteBrojIndeksa { Id = 4, UserId = 2, ProductId = 4, CreatedAt = DateTime.UtcNow.AddDays(10) }
+
+        );
         }
     }
 }

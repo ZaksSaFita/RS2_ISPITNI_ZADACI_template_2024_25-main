@@ -1,16 +1,11 @@
 ﻿using eCommerce.Model;
-using eCommerce.Model.SearchObjects;
-using eCommerce.Model.Responses;
-using eCommerce.Services.Database;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using eCommerce.Model.Requests;
-using MapsterMapper;
+using eCommerce.Model.Responses;
+using eCommerce.Model.SearchObjects;
+using eCommerce.Services.Database;
 using eCommerce.Services.ProductStateMachine;
+using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.ML.Trainers;
@@ -27,12 +22,12 @@ namespace eCommerce.Services
 
         protected override IQueryable<Database.Product> ApplyFilter(IQueryable<Database.Product> query, ProductSearchObject search)
         {
+            query = query.Include(x => x.Assets).Include(x => x.ProductType).Include(x => x.UnitOfMeasure);
             if (!string.IsNullOrEmpty(search.FTS))
             {
                 query = query.Where(p => p.Name.Contains(search.FTS) || p.Description.Contains(search.FTS));
             }
 
-            query = query.Include(x => x.Assets);
 
             return query;
         }
@@ -189,7 +184,7 @@ namespace eCommerce.Services
             MatrixFactorizationTrainer.Options options = new MatrixFactorizationTrainer.Options();
             options.MatrixColumnIndexColumnName = nameof(ProductEntry.ProductId);
             options.MatrixRowIndexColumnName = nameof(ProductEntry.CoPurchaseProductId);
-            options.LabelColumnName= "Label";
+            options.LabelColumnName = "Label";
             options.LossFunction = MatrixFactorizationTrainer.LossFunctionType.SquareLossOneClass;
             options.Alpha = 0.01;
             options.Lambda = 0.025;
