@@ -101,7 +101,7 @@ class _DiscountScreen extends State<DiscountScreen> {
                 child: ElevatedButton.icon(
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const ProductDiscountAdd()));
+                    builder: (context) => const ProductDiscountAdd(null)));
               },
               label: Text("Add discount"),
               icon: Icon(Icons.add),
@@ -148,8 +148,8 @@ class _DiscountScreen extends State<DiscountScreen> {
   Widget _buildCartItemCard(Discount item) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => EditDiscount(item)));
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => ProductDiscountAdd(item)));
       },
       child: Card(
         margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),

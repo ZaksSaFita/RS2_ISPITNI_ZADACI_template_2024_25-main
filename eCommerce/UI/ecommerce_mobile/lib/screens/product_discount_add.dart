@@ -1,4 +1,5 @@
 import 'package:ecommerce_mobile/layouts/master_screen.dart';
+import 'package:ecommerce_mobile/model/discount.dart';
 import 'package:ecommerce_mobile/model/product.dart';
 import 'package:ecommerce_mobile/model/search_result.dart';
 import 'package:ecommerce_mobile/providers/discount_provider.dart';
@@ -10,7 +11,8 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
 class ProductDiscountAdd extends StatefulWidget {
-  const ProductDiscountAdd({super.key});
+  final Discount? item;
+  const ProductDiscountAdd(this.item, {super.key});
 
   @override
   State<ProductDiscountAdd> createState() => _ProductDiscountAdd();
@@ -20,6 +22,8 @@ class _ProductDiscountAdd extends State<ProductDiscountAdd> {
   late ProductProvider productProvider;
   late DiscountProvider discountProvider;
 
+  bool get isEdit => widget.item != null;
+  Map<String, dynamic> _initalValue = {};
   SearchResult<Product>? products;
   int? selectedValue;
   double selectedDiscount = 0;
@@ -36,6 +40,15 @@ class _ProductDiscountAdd extends State<ProductDiscountAdd> {
     super.initState();
     productProvider = ProductProvider();
     discountProvider = DiscountProvider();
+    if (isEdit && widget.item != null) {
+      discountController.text = widget.item!.discount.toString();
+      _initalValue = {
+        "product": widget.item!.product?.id,
+        // "discount": widget.item!.discount.toString(),
+        "validFrom": widget.item!.validFrom,
+        "validTo": widget.item!.validTo,
+      };
+    }
 
     loadData();
   }
@@ -44,20 +57,22 @@ class _ProductDiscountAdd extends State<ProductDiscountAdd> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return MasterScreen(
-          child: Center(
-            child: Column(
-              children: [Text("loading data")],
-            ),
-          ),
-          title: "Add Discount");
-    }
-    return MasterScreen(
+        title: "Add Discount",
         child: Center(
           child: Column(
-            children: [_buildForm()],
+            children: [Text("loading data")],
           ),
         ),
-        title: "Add Discount");
+      );
+    }
+    return MasterScreen(
+      title: "Add Discount",
+      child: Center(
+        child: Column(
+          children: [_buildForm()],
+        ),
+      ),
+    );
   }
 
   void loadData() async {
@@ -80,6 +95,7 @@ class _ProductDiscountAdd extends State<ProductDiscountAdd> {
       decoration: BoxDecoration(border: Border.all()),
       padding: EdgeInsets.all(10),
       child: FormBuilder(
+        initialValue: _initalValue,
         key: formKey,
         child: Column(
           children: [
@@ -191,7 +207,11 @@ class _ProductDiscountAdd extends State<ProductDiscountAdd> {
                     };
 
                     // Primjer: poziv API funkcije
-                    await discountProvider.insert(body);
+                    if (isEdit) {
+                      await discountProvider.update(widget.item!.id, body);
+                    } else {
+                      await discountProvider.insert(body);
+                    }
 
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Discount saved!")));
