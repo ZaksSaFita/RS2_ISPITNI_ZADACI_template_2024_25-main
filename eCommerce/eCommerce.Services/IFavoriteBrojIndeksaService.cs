@@ -6,5 +6,7 @@ namespace eCommerce.Services
 {
     public interface IFavoriteBrojIndeksaService : ICRUDService<FavoriteBrojIndeksaRESPONSE, FavoriteBrojIndeksaSOBJ, FavoriteBrojIndeksaREQUEST, FavoriteBrojIndeksaREQUEST>
     {
+
+        public Task AddToCart(int userId, int productId);
     }
 }

@@ -1,6 +1,8 @@
 import 'package:ecommerce_mobile/layouts/master_screen.dart';
 import 'package:ecommerce_mobile/model/cart_provider.dart';
 import 'package:ecommerce_mobile/model/cart.dart';
+import 'package:ecommerce_mobile/model/search_result.dart';
+import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,29 +16,33 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   late CartProvider cartProvider;
-
+  int? userId;
+  SearchResult<Cart>? cart;
   @override
   void initState() {
     super.initState();
-    cartProvider = context.read<CartProvider>();
+    cartProvider = CartProvider();
+    userId = AuthProvider.user?.id;
+    loadCart();
+  }
+
+  loadCart() async {
+    cart = await cartProvider.get(filter: {"userId": userId});
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return MasterScreen(
       title: "Shopping Cart",
-      child: Consumer<CartProvider>(
-        builder: (context, cartProvider, child) {
-          return Center(
-            child: Column(
-              children: [
-                _buildCartHeader(),
-                _buildCartItems(),
-                _buildCartSummary(),
-              ],
-            ),
-          );
-        },
+      child: Center(
+        child: Column(
+          children: [
+            _buildCartHeader(),
+            _buildCartItems(),
+            _buildCartSummary(),
+          ],
+        ),
       ),
     );
   }
@@ -49,7 +55,7 @@ class _CartScreenState extends State<CartScreen> {
           Icon(Icons.shopping_cart, size: 24),
           SizedBox(width: 8),
           Text(
-            "Cart Items (${cartProvider.cart.items.length})",
+            "Cart Items (${cart?.items?.length})",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ],
@@ -58,7 +64,7 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCartItems() {
-    if (cartProvider.cart.items.isEmpty) {
+    if (cart!.items!.isEmpty) {
       return Expanded(
         child: Center(
           child: Column(
@@ -98,9 +104,9 @@ class _CartScreenState extends State<CartScreen> {
             Container(
               height: 80,
               width: 80,
-              child: item.product.assets.firstOrNull == null 
-                ? Placeholder() 
-                : imageFromString(item.product.assets.first.base64Content),
+              child: item.product.assets.firstOrNull == null
+                  ? Placeholder()
+                  : imageFromString(item.product.assets.first.base64Content),
             ),
             SizedBox(width: 12),
             // Product Details
@@ -138,7 +144,7 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ),
             // Actions
-                          Column(
+            Column(
               children: [
                 Text(
                   formatNumber((item.product.price ?? 0.0) * item.count),
@@ -207,7 +213,9 @@ class _CartScreenState extends State<CartScreen> {
               onPressed: () {
                 // TODO: Implement checkout functionality
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Checkout functionality not implemented yet")),
+                  SnackBar(
+                      content:
+                          Text("Checkout functionality not implemented yet")),
                 );
               },
               style: ElevatedButton.styleFrom(

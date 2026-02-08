@@ -15,5 +15,13 @@ namespace eCommerce.WebAPI.Controllers
         {
             _service = service;
         }
+
+        [HttpPost("addToCart")]
+        public async Task<IActionResult> AddToCart(AddToCartRequest request)
+        {
+            await _service.AddToCart(request.UserId, request.ProductId);
+            return Ok("sve dure");
+        }
+
     }
 }

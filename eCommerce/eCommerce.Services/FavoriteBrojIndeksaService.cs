@@ -37,5 +37,45 @@ namespace eCommerce.Services
 
         }
 
+
+        public async Task AddToCart(int userId, int productId)
+        {
+            var cart = await _context.Carts.Include(x => x.CartItems).FirstOrDefaultAsync(x => x.UserId == userId);
+
+            if (cart == null)
+            {
+                cart = new Cart { UserId = userId, CartItems = new List<CartItem>() };
+                _context.Add(cart);
+                await _context.SaveChangesAsync();
+            }
+
+            var existingItems = await _context.CartItems.Include(x => x.Cart).Include(x => x.Product).FirstOrDefaultAsync(X => X.CartId == cart.Id && X.ProductId == productId);
+
+            if (existingItems != null)
+            {
+                existingItems.Quantity++;
+                existingItems.UpdatedAt = DateTime.UtcNow;
+
+
+
+            }
+            else
+            {
+                cart.CartItems.Add(new CartItem
+                {
+                    CartId = cart.Id,
+                    ProductId = productId,
+                    AddedAt = DateTime.UtcNow,
+                    Quantity = 1
+                });
+            }
+
+            await _context.SaveChangesAsync();
+
+
+        }
+
+
+
     }
 }
