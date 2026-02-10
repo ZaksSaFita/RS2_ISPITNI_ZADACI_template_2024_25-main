@@ -22,6 +22,8 @@ namespace eCommerce.Services.Database
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<UnitOfMeasure> UnitsOfMeasure { get; set; }
+        public DbSet<CartEventBrojIndeksa> CartEvents { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -180,6 +182,21 @@ namespace eCommerce.Services.Database
                 .IsUnique();
 
 
+
+            modelBuilder.Entity<CartEventBrojIndeksa>()
+            .HasOne(e => e.Cart)
+            .WithMany(c => c.CartEvents)
+            .HasForeignKey(e => e.CartId)
+                .OnDelete(DeleteBehavior.NoAction); // ili Restrict
+
+            modelBuilder.Entity<CartEventBrojIndeksa>()
+                .HasOne(e => e.CartItem)
+                .WithMany()
+                .HasForeignKey(e => e.CartItemId)
+                .OnDelete(DeleteBehavior.SetNull); // ili SetNull
+
+
+
             modelBuilder.Entity<Category>().HasData(
            new Category { Id = 1, Name = "Elektronika", Description = "Elektronski ureðaji", IsActive = true, CreatedAt = DateTime.UtcNow },
            new Category { Id = 2, Name = "Knjige", Description = "Knjige i literatura", IsActive = true, CreatedAt = DateTime.UtcNow },
@@ -269,7 +286,9 @@ namespace eCommerce.Services.Database
 
             modelBuilder.Entity<CartItem>().HasData(
                 new CartItem { Id = 1, CartId = 1, ProductId = 1, Quantity = 1, AddedAt = DateTime.UtcNow },
-                new CartItem { Id = 2, CartId = 2, ProductId = 8, Quantity = 2, AddedAt = DateTime.UtcNow }
+                new CartItem { Id = 2, CartId = 2, ProductId = 8, Quantity = 1, AddedAt = DateTime.UtcNow },
+                new CartItem { Id = 3, CartId = 2, ProductId = 7, Quantity = 2, AddedAt = DateTime.UtcNow.AddDays(5) }
+
             );
 
             modelBuilder.Entity<Order>().HasData(
@@ -313,6 +332,13 @@ namespace eCommerce.Services.Database
                 new UserRole { Id = 2, UserId = 2, RoleId = 2, DateAssigned = DateTime.UtcNow }
             );
 
+
+            modelBuilder.Entity<CartEventBrojIndeksa>().HasData(
+             new CartEventBrojIndeksa { Id = 1, CartId = 2, UserId = 2, CartItemId = 2, EventType = "Add", CreatedAt = DateTime.UtcNow },
+
+             new CartEventBrojIndeksa { Id = 2, CartId = 2, UserId = 2, CartItemId = 3, EventType = "Update", CreatedAt = DateTime.UtcNow }
+
+         );
         }
     }
 }
