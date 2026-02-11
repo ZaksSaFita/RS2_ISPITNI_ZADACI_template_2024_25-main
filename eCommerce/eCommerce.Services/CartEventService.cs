@@ -16,7 +16,7 @@ namespace eCommerce.Services
 
         protected override IQueryable<CartEventBrojIndeksa> ApplyFilter(IQueryable<CartEventBrojIndeksa> query, CartEventBrojIndeksaSOBJ search)
         {
-            query = query.Include(x => x.User).Include(x => x.Cart).Include(x => x.CartItem).ThenInclude(x => x.Product);
+            query = query.Include(x => x.User).Include(x => x.Cart);
 
             if (!string.IsNullOrEmpty(search.Username))
             {
@@ -30,11 +30,25 @@ namespace eCommerce.Services
             return base.ApplyFilter(query, search);
         }
 
-        protected override CartEventBrojIndeksaRESPONSE MapToResponse(CartEventBrojIndeksa entity)
-        {
 
-            return base.MapToResponse(entity);
-        }
+
+
+        //protected override CartEventBrojIndeksaRESPONSE MapToResponse(CartEventBrojIndeksa entity)
+        //{
+        //    var response = base.MapToResponse(entity);
+
+        //    var cart = _context.Carts.Include(x => x.CartItems).FirstOrDefault(x => x.Id == response.CartId);
+        //    var item = _context.CartItems.Include(x => x.Product).FirstOrDefault(x => x.Id == entity.CartItemId);
+
+
+        //    response.UserFullName = cart?.User.FirstName + " " + cart?.User.LastName;
+        //    response.ProductName = item?.Product == null ? "" : item.Product.Name;
+
+
+        //    return response;
+        //}
+
+
 
 
 

@@ -2,6 +2,7 @@ import 'package:ecommerce_mobile/layouts/master_screen.dart';
 import 'package:ecommerce_mobile/model/cart_provider.dart';
 import 'package:ecommerce_mobile/model/product.dart';
 import 'package:ecommerce_mobile/model/search_result.dart';
+import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/utils.dart';
 import 'package:ecommerce_mobile/screens/product_details_screen.dart';
 import 'package:flutter/material.dart';
@@ -26,14 +27,13 @@ class _ProductListState extends State<ProductList> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-  
   }
 
   @override
   void initState() {
     super.initState();
     productProvider = context.read<ProductProvider>();
-    cartProvider = context.read<CartProvider>();
+    cartProvider = CartProvider();
     loadData();
   }
 
@@ -52,10 +52,7 @@ class _ProductListState extends State<ProductList> {
       title: "Product List",
       child: Center(
         child: Column(
-          children: [
-            _buildSearch(),
-            _buildResultView()
-          ],
+          children: [_buildSearch(), _buildResultView()],
         ),
       ),
     );
@@ -93,54 +90,63 @@ class _ProductListState extends State<ProductList> {
           ],
         ));
   }
-  
 
   Widget _buildResultView() {
-    return Expanded(child: Container(
+    return Expanded(
+        child: Container(
       width: double.infinity,
       child: SingleChildScrollView(
         child: Container(
-              height: 500,
-              child: GridView(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 4 / 3,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 30
-                ),
-                scrollDirection: Axis.horizontal,
-                children: _buildProductCardList(),
-              ),
-            ),
+          height: 500,
+          child: GridView(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 4 / 3,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 30),
+            scrollDirection: Axis.horizontal,
+            children: _buildProductCardList(),
+          ),
+        ),
       ),
     ));
   }
 
-
-
-    List<Widget> _buildProductCardList() {
+  List<Widget> _buildProductCardList() {
     if (data == null || data?.items?.length == 0) {
       return [Text("Loading...")];
     }
 
-    List<Widget> list = data!.items!.map((x) => Container(
-      child: Column(
-        children: [
-          Container(
-            height: 100,
-            width: 100,
-            child: x.assets.firstOrNull == null ? Placeholder() : imageFromString(x.assets.first.base64Content),
-          ),
-          Text(x.name),
-          Text(formatNumber(x.price)),
-          IconButton(onPressed: () {
-              cartProvider?.addToCart(x);
-          }, icon: Icon(Icons.shopping_cart))
-        ],
-      ),
-    )).cast<Widget>().toList();
-    
+    List<Widget> list = data!.items!
+        .map((x) => Container(
+              child: Column(
+                children: [
+                  Container(
+                    height: 100,
+                    width: 100,
+                    child: x.assets.firstOrNull == null
+                        ? Placeholder()
+                        : imageFromString(x.assets.first.base64Content),
+                  ),
+                  Text(x.name),
+                  Text(formatNumber(x.price)),
+                  IconButton(
+                      onPressed: () async {
+                        // cartProvider?.addToCart(x);
+                        var request = {
+                          "username": AuthProvider.username,
+                          "productId": x.id
+                        };
+                        await cartProvider.insert(request);
+                        setState(() {});
+                      },
+                      icon: Icon(Icons.shopping_cart))
+                ],
+              ),
+            ))
+        .cast<Widget>()
+        .toList();
+
     return list;
   }
-
 }

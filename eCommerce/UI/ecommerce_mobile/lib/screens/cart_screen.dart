@@ -1,6 +1,8 @@
 import 'package:ecommerce_mobile/layouts/master_screen.dart';
 import 'package:ecommerce_mobile/model/cart_provider.dart';
 import 'package:ecommerce_mobile/model/cart.dart';
+import 'package:ecommerce_mobile/model/search_result.dart';
+import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,29 +16,34 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   late CartProvider cartProvider;
-
+  SearchResult<Cart>? cart;
+  bool clearCart = false;
+  int cartId = 0;
   @override
   void initState() {
     super.initState();
-    cartProvider = context.read<CartProvider>();
+    cartProvider = CartProvider();
+    loadCart();
+  }
+
+  loadCart() async {
+    cart = await cartProvider.get(filter: {"username": AuthProvider.username});
+    cartId = cart!.items!.first.id;
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return MasterScreen(
       title: "Shopping Cart",
-      child: Consumer<CartProvider>(
-        builder: (context, cartProvider, child) {
-          return Center(
-            child: Column(
-              children: [
-                _buildCartHeader(),
-                _buildCartItems(),
-                _buildCartSummary(),
-              ],
-            ),
-          );
-        },
+      child: Center(
+        child: Column(
+          children: [
+            _buildCartHeader(),
+            _buildCartItems(),
+            _buildCartSummary(),
+          ],
+        ),
       ),
     );
   }
@@ -49,16 +56,50 @@ class _CartScreenState extends State<CartScreen> {
           Icon(Icons.shopping_cart, size: 24),
           SizedBox(width: 8),
           Text(
-            "Cart Items (${cartProvider.cart.items.length})",
+            "Cart Items (${cart?.items?.first.cartItems.length})",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
+          SizedBox(
+            width: 30,
+          ),
+          ElevatedButton.icon(
+            onPressed: () async {
+              setState(() {
+                clearCart = true;
+              });
+              await cartProvider.clearCart(cart!.items!.first.id);
+              await loadCart();
+              setState(() {
+                clearCart = false;
+              });
+            },
+            label: Text("Clear Cart"),
+            icon: Icon(Icons.clear_all),
+          )
         ],
       ),
     );
   }
 
   Widget _buildCartItems() {
-    if (cartProvider.cart.items.isEmpty) {
+    if (clearCart) {
+      return Expanded(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.remove_circle, size: 64, color: Colors.grey),
+              SizedBox(height: 16),
+              Text(
+                "Removing Cart items ....",
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (cart?.items == null || cart!.items!.first.cartItems.isEmpty) {
       return Expanded(
         child: Center(
           child: Column(
@@ -78,9 +119,9 @@ class _CartScreenState extends State<CartScreen> {
 
     return Expanded(
       child: ListView.builder(
-        itemCount: cartProvider.cart.items.length,
+        itemCount: cart?.items?.first.cartItems.length,
         itemBuilder: (context, index) {
-          CartItem item = cartProvider.cart.items[index];
+          CartItem item = cart!.items!.first.cartItems[index];
           return _buildCartItemCard(item);
         },
       ),
@@ -98,9 +139,9 @@ class _CartScreenState extends State<CartScreen> {
             Container(
               height: 80,
               width: 80,
-              child: item.product.assets.firstOrNull == null 
-                ? Placeholder() 
-                : imageFromString(item.product.assets.first.base64Content),
+              child: item.product?.assets.firstOrNull == null
+                  ? Placeholder()
+                  : imageFromString(item.product!.assets.first.base64Content),
             ),
             SizedBox(width: 12),
             // Product Details
@@ -109,7 +150,7 @@ class _CartScreenState extends State<CartScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    item.product.name,
+                    item.product!.name,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -117,7 +158,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    formatNumber(item.product.price),
+                    formatNumber(item.product!.price),
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.green,
@@ -129,7 +170,7 @@ class _CartScreenState extends State<CartScreen> {
                     children: [
                       Text("Quantity: "),
                       Text(
-                        "${item.count}",
+                        "${item.quantity}",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -138,10 +179,10 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ),
             // Actions
-                          Column(
+            Column(
               children: [
                 Text(
-                  formatNumber((item.product.price ?? 0.0) * item.count),
+                  formatNumber((item.product?.price ?? 0.0) * item.quantity),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -150,8 +191,10 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 SizedBox(height: 8),
                 IconButton(
-                  onPressed: () {
-                    cartProvider.removeFromCart(item.product);
+                  onPressed: () async {
+                    //cartProvider.removeFromCart(item.product);
+                    await cartProvider.deleteItem(item.id);
+                    loadCart();
                   },
                   icon: Icon(Icons.delete, color: Colors.red),
                 ),
@@ -164,12 +207,12 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCartSummary() {
-    if (cartProvider.cart.items.isEmpty) {
+    if (cart?.items == null || cart!.items!.first.cartItems.isEmpty) {
       return SizedBox.shrink();
     }
 
-    double total = cartProvider.cart.items
-        .map((item) => (item.product.price ?? 0.0) * item.count)
+    double total = cart!.items!.first.cartItems
+        .map((item) => (item.product?.price ?? 0.0) * item.quantity)
         .reduce((a, b) => a + b);
 
     return Container(
@@ -204,10 +247,12 @@ class _CartScreenState extends State<CartScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 // TODO: Implement checkout functionality
+                await cartProvider.checkOut(cartId);
+                setState(() {});
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Checkout functionality not implemented yet")),
+                  SnackBar(content: Text("Checkout event done!")),
                 );
               },
               style: ElevatedButton.styleFrom(

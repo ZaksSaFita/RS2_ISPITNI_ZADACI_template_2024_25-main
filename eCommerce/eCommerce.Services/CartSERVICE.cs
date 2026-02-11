@@ -13,12 +13,13 @@ namespace eCommerce.Services
         {
         }
 
+
         protected override IQueryable<Cart> ApplyFilter(IQueryable<Cart> query, CartSOBJ search)
         {
             query = query.Include(x => x.User).Include(x => x.CartItems).ThenInclude(x => x.Product).ThenInclude(x => x.Assets);
-            if (!string.IsNullOrEmpty(search.FTS))
+            if (!string.IsNullOrEmpty(search.Username))
             {
-                query = query.Where(x => x.User.Username == search.FTS);
+                query = query.Where(x => x.User.Username == search.Username);
             }
 
             return base.ApplyFilter(query, search);
@@ -65,8 +66,9 @@ namespace eCommerce.Services
                     EventType = "Add",
                     OldQuantity = OldQuantity,
                     NewQuantity = item.Quantity,
-                    Pname = product?.Name,
-                    Pprice = product?.Price,
+                    ProductName = product?.Name,
+                    ProductPrice = product?.Price,
+                    UserFullName = cart.User.FirstName + " " + cart.User.LastName
 
                 };
 
@@ -90,8 +92,9 @@ namespace eCommerce.Services
                     EventType = "Update",
                     OldQuantity = OldQuantity,
                     NewQuantity = item.Quantity,
-                    Pname = product?.Name,
-                    Pprice = product?.Price,
+                    ProductName = product?.Name,
+                    ProductPrice = product?.Price,
+                    UserFullName = cart.User.FirstName + " " + cart.User.LastName
 
                 };
 
@@ -126,8 +129,9 @@ namespace eCommerce.Services
                 EventType = "Delete",
                 OldQuantity = item.Quantity,
                 NewQuantity = item.Quantity,
-                Pname = product?.Name,
-                Pprice = product?.Price,
+                ProductName = product?.Name,
+                ProductPrice = product?.Price,
+                UserFullName = cart?.User.FirstName + " " + cart?.User.LastName
 
             };
 
@@ -144,33 +148,69 @@ namespace eCommerce.Services
 
         public async Task ClearCart(int cartId)
         {
+            var cart = await _context.Carts.FirstOrDefaultAsync(x => x.Id == cartId);
+
             var cartItems = await _context.CartItems
                 .Where(x => x.CartId == cartId)
-                .Select(x => x.Id)
                 .ToListAsync();
 
 
             if (cartItems == null)
-            {
                 return;
-            }
-
-
-
 
             foreach (var item in cartItems)
             {
+                var product = await _context.Products.FirstOrDefaultAsync(x => x.Id == item.ProductId);
 
-                await DeleteItem(item);
+                var newEvent = new CartEventBrojIndeksa
+                {
+                    CartId = cart.Id,
+                    UserId = cart.UserId,
+                    CartItemId = item.Id,
+                    CreatedAt = DateTime.UtcNow,
+                    EventType = "Clear",
+                    OldQuantity = item.Quantity,
+                    NewQuantity = item.Quantity,
+                    ProductName = product?.Name,
+                    ProductPrice = product?.Price,
+                    UserFullName = cart?.User.FirstName + " " + cart?.User.LastName
 
+                };
+
+                _context.CartEvents.Add(newEvent);
+                await _context.SaveChangesAsync();
+
+                _context.CartItems.Remove(item);
 
             }
+            await _context.SaveChangesAsync();
 
         }
 
-        public async Task CheckOut()
+        public async Task CheckOut(int cartId)
         {
-            return;
+            var cart = await _context.Carts.FirstOrDefaultAsync(x => x.Id == cartId);
+
+
+
+            var newEvent = new CartEventBrojIndeksa
+            {
+                CartId = cart.Id,
+                UserId = cart.UserId,
+                CartItemId = null,
+                CreatedAt = DateTime.UtcNow,
+                EventType = "CheckOut",
+                OldQuantity = 0,
+                NewQuantity = null,
+                ProductName = "",
+                ProductPrice = null,
+                UserFullName = cart?.User.FirstName + " " + cart?.User.LastName
+
+            };
+
+            _context.CartEvents.Add(newEvent);
+
+            await _context.SaveChangesAsync();
         }
 
 

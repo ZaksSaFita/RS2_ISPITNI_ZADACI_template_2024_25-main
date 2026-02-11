@@ -22,17 +22,16 @@ namespace eCommerce.Services.Database
 
         public int? CartItemId { get; set; }
 
-        [ForeignKey("CartItemId")]
-        public CartItem? CartItem { get; set; }
 
 
+        public string? UserFullName { get; set; }
 
         public string? EventType { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public string? Pname { get; set; }
-        public decimal? Pprice { get; set; }
+        public string? ProductName { get; set; }
+        public decimal? ProductPrice { get; set; }
 
         public int OldQuantity { get; set; } = 0;
         public int? NewQuantity { get; set; }

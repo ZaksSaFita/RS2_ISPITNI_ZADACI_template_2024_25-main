@@ -37,8 +37,10 @@ class MyLoginApp extends StatelessWidget {
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
-  final TextEditingController _usernameController = new TextEditingController();
-  final TextEditingController _passwordController = new TextEditingController();
+  final TextEditingController _usernameController =
+      new TextEditingController(text: "admin");
+  final TextEditingController _passwordController =
+      new TextEditingController(text: "Test123");
 
   @override
   Widget build(BuildContext context) {

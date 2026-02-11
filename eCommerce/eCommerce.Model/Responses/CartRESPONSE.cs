@@ -6,7 +6,7 @@ namespace eCommerce.Model.Responses
     {
         public int Id { get; set; }
 
-        public UserResponse? User { get; set; } = null!;
+        public UserResponse? User { get; set; }
 
         // Navigation property for cart items
         public ICollection<CartItemRESPONSE> CartItems { get; set; } = new List<CartItemRESPONSE>();

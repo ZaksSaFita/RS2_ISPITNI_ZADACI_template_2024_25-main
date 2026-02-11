@@ -189,11 +189,6 @@ namespace eCommerce.Services.Database
             .HasForeignKey(e => e.CartId)
                 .OnDelete(DeleteBehavior.NoAction); // ili Restrict
 
-            modelBuilder.Entity<CartEventBrojIndeksa>()
-                .HasOne(e => e.CartItem)
-                .WithMany()
-                .HasForeignKey(e => e.CartItemId)
-                .OnDelete(DeleteBehavior.SetNull); // ili SetNull
 
 
 
@@ -332,11 +327,51 @@ namespace eCommerce.Services.Database
                 new UserRole { Id = 2, UserId = 2, RoleId = 2, DateAssigned = DateTime.UtcNow }
             );
 
-
+            //"Denis", LastName = "Music"
             modelBuilder.Entity<CartEventBrojIndeksa>().HasData(
-             new CartEventBrojIndeksa { Id = 1, CartId = 2, UserId = 2, CartItemId = 2, EventType = "Add", CreatedAt = DateTime.UtcNow },
+                  new CartEventBrojIndeksa
+                  {
+                      Id = 1,
+                      CartId = 1,
+                      UserId = 1,
+                      CartItemId = 1,
+                      EventType = "Add",
+                      CreatedAt = DateTime.UtcNow,
+                      OldQuantity = 0,
+                      NewQuantity = 1,
+                      ProductName = "iPhone 15",
+                      ProductPrice = 999.99m,
+                      UserFullName = "Goran Skondric"
+                  },
+             new CartEventBrojIndeksa
+             {
+                 Id = 2,
+                 CartId = 2,
+                 UserId = 2,
+                 CartItemId = 2,
+                 EventType = "Add",
+                 CreatedAt = DateTime.UtcNow,
+                 OldQuantity = 0,
+                 NewQuantity = 1,
+                 ProductName = "Kindle Paperwhite",
+                 ProductPrice = 129.99m,
+                 UserFullName = "Denis Music"
+             },
 
-             new CartEventBrojIndeksa { Id = 2, CartId = 2, UserId = 2, CartItemId = 3, EventType = "Update", CreatedAt = DateTime.UtcNow }
+             new CartEventBrojIndeksa
+             {
+                 Id = 3,
+                 CartId = 2,
+                 UserId = 2,
+                 CartItemId = 3,
+                 EventType = "Update",
+                 CreatedAt = DateTime.UtcNow,
+                 OldQuantity = 1,
+                 NewQuantity = 2,
+                 ProductName = "Knjiga: Programiranje u C#",
+                 ProductPrice = 49.99m,
+                 UserFullName = "Denis Music"
+             }
 
          );
         }

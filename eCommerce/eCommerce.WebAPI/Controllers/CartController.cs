@@ -23,17 +23,17 @@ namespace eCommerce.WebAPI.Controllers
         }
 
 
-        [HttpDelete("DeleteItem")]
+        [HttpDelete("DeleteItem/{id}")]
         public async Task DeleteItem(int id)
         {
             await _service.DeleteItem(id);
 
         }
 
-        [HttpPost("CheckOut")]
-        public async Task CheckOut()
+        [HttpPost("CheckOut/{id}")]
+        public async Task CheckOut(int id)
         {
-            await _service.CheckOut();
+            await _service.CheckOut(id);
 
         }
 

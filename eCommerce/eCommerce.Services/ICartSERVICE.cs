@@ -8,7 +8,7 @@ namespace eCommerce.Services
     {
         public Task DeleteItem(int id);
         public Task ClearCart(int id);
-        public Task CheckOut();
+        public Task CheckOut(int id);
 
     }
 }
