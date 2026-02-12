@@ -2,6 +2,7 @@ import 'package:ecommerce_mobile/layouts/master_screen.dart';
 import 'package:ecommerce_mobile/model/cart_provider.dart';
 import 'package:ecommerce_mobile/model/product.dart';
 import 'package:ecommerce_mobile/model/search_result.dart';
+import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/utils.dart';
 import 'package:ecommerce_mobile/screens/product_details.dart';
 import 'package:ecommerce_mobile/screens/product_details_screen.dart';
@@ -137,8 +138,13 @@ class _ProductListState extends State<ProductList> {
                   Text(x.name),
                   Text(formatNumber(x.price)),
                   IconButton(
-                      onPressed: () {
-                        cartProvider?.addToCart(x);
+                      onPressed: () async {
+                        var request = {
+                          "productId": x.id,
+                          "userId": AuthProvider.user?.id
+                        };
+                        await cartProvider.addToCart(request);
+                        setState(() {});
                       },
                       icon: Icon(Icons.shopping_cart))
                 ],

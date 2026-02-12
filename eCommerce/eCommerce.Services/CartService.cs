@@ -25,56 +25,48 @@ namespace eCommerce.Services
             return query;
         }
 
-        public async Task<CartRESPONSE> addToCart(int userId, CartItemREQUST request)
+        public async Task<CartRESPONSE> addToCart(CartItemREQUST request)
         {
-            var cart = await _context.Carts.FirstOrDefaultAsync(x => x.UserId == userId);
-            //check if entity is null
+            var cart = await _context.Carts.FirstOrDefaultAsync(x => x.UserId == request.UserId);
+
             if (cart == null)
             {
-                cart = new Cart
-                {
-                    UserId = userId,
-                    CartItems = new List<CartItem>
-            {
-                new CartItem
-                {
-                    ProductId = request.ProductId,
-                    Quantity = request.Quantity,
-                    AddedAt = DateTime.Now
-                }
-            }
-                };
+                cart = new Cart { UserId = request.UserId };
+
 
                 _context.Carts.Add(cart);
-                await _context.SaveChangesAsync();
-
-                return _mapper.Map<CartRESPONSE>(cart);
-
             }
 
-            var item = cart.CartItems
-        .FirstOrDefault(x => x.ProductId == request.ProductId);
+            var exist = await _context.CartItems.FirstOrDefaultAsync(x => x.ProductId == request.ProductId && x.CartId == cart.Id);
 
-            if (item != null)
+            if (exist != null)
             {
-                item.Quantity += request.Quantity;
-                item.UpdatedAt = DateTime.Now;
+                exist.Quantity++;
+                exist.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
             }
             else
             {
-                cart.CartItems.Add(new CartItem
-                {
-                    ProductId = request.ProductId,
-                    Quantity = request.Quantity,
-                    AddedAt = DateTime.Now
-                });
-            }
+                var item = new CartItem { CartId = cart.Id, ProductId = request.ProductId, Quantity = 1, AddedAt = DateTime.UtcNow };
 
-            await _context.SaveChangesAsync();
+                cart.CartItems.Add(item);
+
+                await _context.SaveChangesAsync();
+            }
 
             return _mapper.Map<CartRESPONSE>(cart);
         }
 
-
+        public async Task removeFromCart(int ItemId)
+        {
+            var item = await _context.CartItems.FirstOrDefaultAsync(x => x.Id == ItemId);
+            if (item == null)
+            {
+                return;
+            }
+            _context.CartItems.Remove(item);
+            await _context.SaveChangesAsync();
+        }
     }
 }

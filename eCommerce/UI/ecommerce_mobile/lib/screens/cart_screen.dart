@@ -55,7 +55,9 @@ class _CartScreenState extends State<CartScreen> {
           Icon(Icons.shopping_cart, size: 24),
           SizedBox(width: 8),
           Text(
-            "Cart Items (${cart?.items?.length})",
+            cart?.items?.first.cartItems.length == null
+                ? "Cart Items 0"
+                : "Cart Items ${cart?.items?.first.cartItems.length}",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ],
@@ -63,8 +65,14 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+//
+//
+//
   Widget _buildCartItems() {
-    if (cart!.items!.isEmpty) {
+    if (cart == null ||
+        cart!.items == null ||
+        cart!.items!.isEmpty ||
+        cart!.items!.first.cartItems.isEmpty) {
       return Expanded(
         child: Center(
           child: Column(
@@ -84,9 +92,9 @@ class _CartScreenState extends State<CartScreen> {
 
     return Expanded(
       child: ListView.builder(
-        itemCount: cartProvider.cart.items.length,
+        itemCount: cart?.items?.first.cartItems.length,
         itemBuilder: (context, index) {
-          CartItem item = cartProvider.cart.items[index];
+          CartItem item = cart!.items!.first.cartItems[index];
           return _buildCartItemCard(item);
         },
       ),
@@ -104,9 +112,9 @@ class _CartScreenState extends State<CartScreen> {
             Container(
               height: 80,
               width: 80,
-              child: item.product.assets.firstOrNull == null
+              child: item.product?.assets.firstOrNull == null
                   ? Placeholder()
-                  : imageFromString(item.product.assets.first.base64Content),
+                  : imageFromString(item.product!.assets.first.base64Content),
             ),
             SizedBox(width: 12),
             // Product Details
@@ -115,7 +123,7 @@ class _CartScreenState extends State<CartScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    item.product.name,
+                    item.product!.name,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -123,7 +131,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    formatNumber(item.product.price),
+                    formatNumber(item.product!.price),
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.green,
@@ -135,7 +143,7 @@ class _CartScreenState extends State<CartScreen> {
                     children: [
                       Text("Quantity: "),
                       Text(
-                        "${item.count}",
+                        "${item.quantity}",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -147,7 +155,7 @@ class _CartScreenState extends State<CartScreen> {
             Column(
               children: [
                 Text(
-                  formatNumber((item.product.price ?? 0.0) * item.count),
+                  formatNumber((item.product?.price ?? 0.0) * item.quantity),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -156,8 +164,9 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 SizedBox(height: 8),
                 IconButton(
-                  onPressed: () {
-                    cartProvider.removeFromCart(item.product);
+                  onPressed: () async {
+                    await cartProvider.removeFromCart(item.id);
+                    loadCart();
                   },
                   icon: Icon(Icons.delete, color: Colors.red),
                 ),
@@ -170,12 +179,15 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCartSummary() {
-    if (cartProvider.cart.items.isEmpty) {
+    if (cart == null ||
+        cart!.items == null ||
+        cart!.items!.isEmpty ||
+        cart!.items!.first.cartItems.isEmpty) {
       return SizedBox.shrink();
     }
 
-    double total = cartProvider.cart.items
-        .map((item) => (item.product.price ?? 0.0) * item.count)
+    double total = cart!.items!.first.cartItems
+        .map((item) => (item.product?.price ?? 0.0) * item.quantity)
         .reduce((a, b) => a + b);
 
     return Container(

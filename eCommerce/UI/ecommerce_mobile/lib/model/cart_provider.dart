@@ -1,32 +1,44 @@
+import 'dart:convert';
+
 import 'package:ecommerce_mobile/model/cart.dart';
-import 'package:ecommerce_mobile/model/product.dart';
 import 'package:ecommerce_mobile/providers/base_provider.dart';
-import 'package:flutter/widgets.dart';
-import 'package:collection/collection.dart';
+import 'package:http/http.dart' as http;
 
 class CartProvider extends BaseProvider<Cart> {
-  Cart cart = Cart();
-
   CartProvider() : super("cart");
-  addToCart(Product product) {
-    if (findInCart(product) != null) {
-      findInCart(product);
+
+  @override
+  Cart fromJson(dynamic json) {
+    return Cart.fromJson(json);
+  }
+
+  Future<void> removeFromCart(int id) async {
+    var url = "https://localhost:7093/api/Cart/removeItem/$id";
+    var uri = Uri.parse(url);
+    var headers = createHeaders();
+
+    var response = await http.delete(uri, headers: headers);
+
+    if (isValidResponse(response)) {
     } else {
-      cart.cartItems.add(CartItem(product, 1));
+      throw new Exception("Unknown error");
     }
-
-    notifyListeners();
   }
 
-  removeFromCart(Product product) {
-    cart.cartItems.removeWhere((item) => item.product?.id == product.id);
-    notifyListeners();
-  }
+  Future addToCart(dynamic request) async {
+    var url = "https://localhost:7093/api/Cart/addToCart";
 
-  CartItem? findInCart(Product product) {
-    CartItem? item = cart.cartItems
-        .firstWhereOrNull((item) => item.product?.id == product.id);
+    var uri = Uri.parse(url);
+    var headers = createHeaders();
 
-    return item;
+    var jsonRequest = jsonEncode(request);
+    var response = await http.post(uri, headers: headers, body: jsonRequest);
+
+    if (isValidResponse(response)) {
+      var data = jsonDecode(response.body);
+      return fromJson(data);
+    } else {
+      throw new Exception("Unknown error");
+    }
   }
 }

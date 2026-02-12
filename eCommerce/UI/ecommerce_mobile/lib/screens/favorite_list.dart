@@ -4,7 +4,6 @@ import 'package:ecommerce_mobile/model/search_result.dart';
 import 'package:ecommerce_mobile/model/user_favorite.dart';
 import 'package:ecommerce_mobile/providers/auth_provider.dart';
 import 'package:ecommerce_mobile/providers/favorite_provider.dart';
-import 'package:ecommerce_mobile/providers/shop_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +17,6 @@ class FavoriteList extends StatefulWidget {
 
 class _FavoriteList extends State<FavoriteList> {
   late FavoriteProvider favoriteProvider;
-  late ShopProvider shopProvider;
   late CartProvider cartProvider;
 
   TextEditingController fromController = TextEditingController();
@@ -33,7 +31,6 @@ class _FavoriteList extends State<FavoriteList> {
   void initState() {
     super.initState();
     favoriteProvider = FavoriteProvider();
-    shopProvider = ShopProvider();
     cartProvider = context.read<CartProvider>();
 
     userId = AuthProvider.user?.id;
@@ -78,13 +75,18 @@ class _FavoriteList extends State<FavoriteList> {
             DataColumn(label: Text("ID")),
             DataColumn(label: Text("Product name")),
             DataColumn(label: Text("Product price")),
+            DataColumn(label: Text("Product type")),
+            DataColumn(label: Text("Product status")),
             DataColumn(label: Text("Added at"))
           ],
           rows: data?.items
                   ?.map((e) => DataRow(cells: [
                         DataCell(Text("${e.id}")),
                         DataCell(Text("${e.product?.name}")),
-                        DataCell(Text("${e.product?.price} \$")),
+                        DataCell(Text(
+                            "${e.product?.price} \$ / ${e.product?.unitOfMeasure?.name}")),
+                        DataCell(Text("${e.product?.productType?.name} ")),
+                        DataCell(Text("${e.product?.productState} ")),
                         DataCell(
                             Text(DateFormat("dd.MM.yyyy").format(e.createdAt!)))
                       ]))
@@ -157,9 +159,11 @@ class _FavoriteList extends State<FavoriteList> {
             ElevatedButton(
               onPressed: () async {
                 for (var element in data!.items!) {
-                  cartProvider.addToCart(element.product!);
-                  var request = {"productId": element.productId, "quantity": 1};
-                  await shopProvider.addToCart(userId, request);
+                  var request = {
+                    "productId": element.productId,
+                    "userId": userId
+                  };
+                  await cartProvider.addToCart(request);
 
                   await favoriteProvider.delete(element.id);
                 }

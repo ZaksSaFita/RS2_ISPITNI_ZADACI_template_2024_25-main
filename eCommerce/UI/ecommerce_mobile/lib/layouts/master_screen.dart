@@ -1,4 +1,3 @@
-import 'package:ecommerce_mobile/screens/cart2_screen.dart';
 import 'package:ecommerce_mobile/screens/cart_screen.dart';
 import 'package:ecommerce_mobile/screens/favorite_list.dart';
 import 'package:ecommerce_mobile/screens/product_details_screen.dart';
@@ -59,13 +58,6 @@ class _MasterScreenState extends State<MasterScreen> {
               onTap: () {
                 Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (context) => FavoriteList()));
-              },
-            ),
-            ListTile(
-              title: Text('cart2'),
-              onTap: () {
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => Cart2Screen()));
               },
             ),
           ],

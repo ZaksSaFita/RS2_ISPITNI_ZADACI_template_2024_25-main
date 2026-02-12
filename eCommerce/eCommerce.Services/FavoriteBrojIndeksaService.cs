@@ -15,7 +15,11 @@ namespace eCommerce.Services
 
         protected override IQueryable<FavoriteBrojIndeksa> ApplyFilter(IQueryable<FavoriteBrojIndeksa> query, FavoriteBrojIndeksaSOBJ search)
         {
-            query = query.Include(x => x.User).Include(x => x.Product).ThenInclude(x => x.Assets);
+            query = query.Include(x => x.User)
+                .Include(x => x.Product).ThenInclude(x => x.Assets)
+                 .Include(x => x.Product).ThenInclude(x => x.UnitOfMeasure)
+                  .Include(x => x.Product).ThenInclude(x => x.ProductType);
+
             if (search.ProductId != null)
             {
                 query = query.Where(x => x.ProductId == search.ProductId);

@@ -32,6 +32,9 @@ namespace eCommerce.Services
             return query;
         }
 
+
+
+
         public override async Task<ProductResponse> CreateAsync(ProductInsertRequest request)
         {
             var baseState = _baseProductState.GetProductState("InitialProductState");

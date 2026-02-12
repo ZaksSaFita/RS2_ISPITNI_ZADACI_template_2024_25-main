@@ -17,10 +17,18 @@ namespace eCommerce.WebAPI.Controllers
         }
 
 
-        [HttpPost("{id}/addToCart")]
-        public virtual async Task<CartRESPONSE?> addToCart(int id, [FromBody] CartItemREQUST request)
+        [HttpPost("addToCart")]
+        public virtual async Task<CartRESPONSE?> addToCart([FromBody] CartItemREQUST request)
         {
-            return await _service.addToCart(id, request);
+            return await _service.addToCart(request);
         }
+
+        [HttpDelete("removeItem/{ItemId}")]
+
+        public async Task removeFromCart(int ItemId)
+        {
+            await _service.removeFromCart(ItemId);
+        }
+
     }
 }

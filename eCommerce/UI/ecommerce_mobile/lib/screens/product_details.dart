@@ -113,9 +113,14 @@ class _ProductDetails extends State<ProductDetails> {
                 ),
               ),
 
-              Column(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   IconButton(
+                      tooltip: isFavorite
+                          ? "Remove from Favorite"
+                          : "Add to Favorite",
                       onPressed: () async {
                         var request = {
                           "productId": productId,
@@ -128,17 +133,28 @@ class _ProductDetails extends State<ProductDetails> {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => ProductList()));
                           });
+                          loadData();
                         } else {
                           await favoriteProvider.insert(request).then((_) {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => ProductList()));
                           });
-                          ;
                         }
                       },
                       icon: isFavorite
                           ? Icon(Icons.favorite, color: Colors.red)
                           : Icon(Icons.favorite_outline, color: Colors.green)),
+                  SizedBox(
+                    width: 30,
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => ProductList()));
+                    },
+                    label: Text("Back"),
+                    icon: Icon(Icons.arrow_back_ios_new_sharp),
+                  )
                 ],
               ),
             ],

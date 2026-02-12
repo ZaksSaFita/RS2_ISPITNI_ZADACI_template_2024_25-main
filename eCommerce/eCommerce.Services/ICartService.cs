@@ -6,6 +6,8 @@ namespace eCommerce.Services
 {
     public interface ICartService : ICRUDService<CartRESPONSE, CartSOBJ, CartREQUEST, CartREQUEST>
     {
-        Task<CartRESPONSE> addToCart(int id, CartItemREQUST request);
+        Task<CartRESPONSE> addToCart(CartItemREQUST request);
+        public Task removeFromCart(int ItemId);
+
     }
 }
