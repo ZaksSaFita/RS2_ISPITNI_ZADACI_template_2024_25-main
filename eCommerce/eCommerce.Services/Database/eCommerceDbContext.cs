@@ -22,6 +22,12 @@ namespace eCommerce.Services.Database
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<UnitOfMeasure> UnitsOfMeasure { get; set; }
+        public DbSet<ActivityBrojIndeksa> ActivityBrojIndeksa { get; set; }
+        public DbSet<UserActivityBrojIndeksa> UserActivityBrojIndeksa { get; set; }
+        public DbSet<RewardRuleBrojIndeksa> RewardRuleBrojIndeksa { get; set; }
+
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -180,6 +186,24 @@ namespace eCommerce.Services.Database
                 .IsUnique();
 
 
+            modelBuilder.Entity<UserActivityBrojIndeksa>()
+             .HasOne(ur => ur.User)
+             .WithMany()
+             .HasForeignKey(ur => ur.UserId)
+             .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<UserActivityBrojIndeksa>()
+           .HasOne(ur => ur.ActivityBrojIndeksa)
+           .WithMany()
+           .HasForeignKey(ur => ur.ActivityBrojIndeksaId)
+           .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<RewardRuleBrojIndeksa>()
+       .HasOne(ur => ur.ActivityBrojIndeksa)
+       .WithMany()
+       .HasForeignKey(ur => ur.ActivityBrojIndeksaId)
+       .OnDelete(DeleteBehavior.NoAction);
+
             modelBuilder.Entity<Category>().HasData(
            new Category { Id = 1, Name = "Elektronika", Description = "Elektronski ureðaji", IsActive = true, CreatedAt = DateTime.UtcNow },
            new Category { Id = 2, Name = "Knjige", Description = "Knjige i literatura", IsActive = true, CreatedAt = DateTime.UtcNow },
@@ -313,6 +337,59 @@ namespace eCommerce.Services.Database
                 new UserRole { Id = 2, UserId = 2, RoleId = 2, DateAssigned = DateTime.UtcNow }
             );
 
+            modelBuilder.Entity<ActivityBrojIndeksa>().HasData(
+              new ActivityBrojIndeksa { Id = 1, Name = "Organizacija sastanka", Description = "Odabrati datum i vrijeme sastanka", DueDate = DateTime.UtcNow.AddDays(10) },
+              new ActivityBrojIndeksa { Id = 2, Name = "Izrada prezentacije", Description = "Pripremiti sve podatke i prezentovati", DueDate = DateTime.UtcNow.AddDays(15) },
+              new ActivityBrojIndeksa { Id = 3, Name = "Analiza projekta", Description = "Zavrsna analiza troskova i zarade projekta", DueDate = DateTime.UtcNow.AddDays(20) }
+
+             );
+
+            modelBuilder.Entity<RewardRuleBrojIndeksa>().HasData(
+             new RewardRuleBrojIndeksa
+             {
+                 Id = 1,
+                 ActivityBrojIndeksaId = 1,
+                 MaxDaysToComplete = 10,
+                 NumberOfPoints = 10,
+                 RewardTitle = "Organizator!"
+             },
+               new RewardRuleBrojIndeksa
+               {
+                   Id = 2,
+                   ActivityBrojIndeksaId = 2,
+                   MaxDaysToComplete = 15,
+                   NumberOfPoints = 15,
+                   RewardTitle = "Prezenter!"
+               },
+                 new RewardRuleBrojIndeksa
+                 {
+                     Id = 3,
+                     ActivityBrojIndeksaId = 3,
+                     MaxDaysToComplete = 20,
+                     NumberOfPoints = 20,
+                     RewardTitle = "Analiticar!"
+                 }
+
+
+
+            );
+
+            modelBuilder.Entity<UserActivityBrojIndeksa>().HasData(
+             new UserActivityBrojIndeksa
+             {
+                 Id = 1,
+                 ActivityBrojIndeksaId = 1,
+                 UserId = 1,
+                 AssignedAt = DateTime.UtcNow,
+                 Note = "Done",
+                 Status = "Completed",
+                 CompletedAt = DateTime.UtcNow.AddDays(7),
+                 RewardTitle = "Organizator!",
+                 RewardedAt = DateTime.UtcNow.AddDays(7)
+             }
+
+
+            );
         }
     }
 }

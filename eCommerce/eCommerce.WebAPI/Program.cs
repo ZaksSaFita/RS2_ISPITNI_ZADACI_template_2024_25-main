@@ -1,9 +1,9 @@
 using eCommerce.Services;
 using eCommerce.Services.Database;
 using eCommerce.Services.ProductStateMachine;
+using eCommerce.Services.UserActivityStateMachine;
 using eCommerce.WebAPI.Filters;
 using Mapster;
-using MapsterMapper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.OpenApi.Models;
 
@@ -15,12 +15,27 @@ builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IProductTypeService, ProductTypeService>();
 builder.Services.AddTransient<IRoleService, RoleService>();
 builder.Services.AddTransient<IUnitOfMeasureService, UnitOfMeasureService>();
+builder.Services.AddTransient<IUserActivityBrojIndeksaService, UserActivityBrojIndeksaService>();
+
 
 builder.Services.AddTransient<BaseProductState>();
 builder.Services.AddTransient<InitialProductState>();
 builder.Services.AddTransient<DraftProductState>();
 builder.Services.AddTransient<ActiveProductState>();
 builder.Services.AddTransient<DeactivatedProductState>();
+
+
+builder.Services.AddTransient<BaseUserActivityState>();
+builder.Services.AddTransient<InitialUserActivityState>();
+builder.Services.AddTransient<AssignedState>();
+builder.Services.AddTransient<InProgressState>();
+builder.Services.AddTransient<CompletedState>();
+builder.Services.AddTransient<CancelledState>();
+
+
+
+
+
 
 builder.Services.AddMapster();
 // Configure database
@@ -30,7 +45,7 @@ builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
 
-builder.Services.AddControllers( x=> 
+builder.Services.AddControllers(x =>
     {
         x.Filters.Add<ExceptionFilter>();
     }
